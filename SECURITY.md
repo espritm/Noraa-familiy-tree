@@ -1,7 +1,7 @@
-# Politique de sécurité
+# Security policy
 
-Ne publiez pas de vulnérabilité dans une issue GitHub publique.
+Do not report vulnerabilities in a public GitHub issue.
 
-Si vous découvrez une faille, contactez directement le propriétaire du projet. N'incluez jamais de mot de passe, donnée familiale, photographie ou document d'archive dans un ticket, une pull request ou un journal public.
+If you discover a security issue, contact the project owner directly. Never include a password, family record, photograph, or archival document in a public issue, pull request, or log.
 
-Les secrets ne doivent exister ni dans le dépôt, ni dans son historique Git. Un secret accidentellement exposé doit être révoqué et remplacé immédiatement ; supprimer seulement le fichier ne suffit pas.
+Secrets must never exist in the repository or its Git history. Any accidentally exposed secret must be revoked and replaced immediately; deleting the file alone is not sufficient.

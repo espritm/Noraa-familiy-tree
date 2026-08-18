@@ -1,43 +1,45 @@
 # Noraä Family Tree
 
-Site familial permettant d'explorer un arbre généalogique interactif et les documents qui racontent l'histoire de la famille.
+A private family website for exploring an interactive family tree and the historical records that tell the family's story.
 
-## Objectif
+## Goal
 
-Le projet vise une consultation agréable sur ordinateur, tablette et mobile : zoom, déplacement libre, suivi des branches, recherche d'une personne et ouverture d'une fiche détaillée avec photographies et sources.
+The project aims to provide a comfortable experience on desktop, tablet, and mobile: zooming, free panning, following family branches, searching for a person, and opening a detailed profile with photographs and sources.
 
-Le site sera hébergé sur OVH. Sa page principale est destinée à être publiée à l'adresse `https://noraaesprit.fr/familiy-tree` et protégée par une authentification partagée avec les proches autorisés.
+The site will be hosted by OVH. The application is intended to be available at `https://noraaesprit.fr/familiy-tree` behind authentication shared with authorised relatives.
 
 > [!IMPORTANT]
-> Ce dépôt est public et ne doit contenir aucune donnée généalogique réelle, photographie familiale, archive, adresse, identifiant ou secret. Les exemples versionnés sont entièrement fictifs.
+> This repository is public. It must never contain real genealogical data, family photographs, archival documents, addresses, credentials, or secrets. All committed examples must be entirely fictional.
 
-## État du projet
+## Project status
 
-Le projet est en phase de cadrage. La documentation fonctionnelle et technique se trouve dans [`docs/`](docs/README.md).
+The project is currently in the discovery and specification phase. Functional and technical documentation is available in [`docs/`](docs/README.md).
 
-## Principes
+## Principles
 
-- priorité à la lisibilité et à la navigation dans les grandes branches ;
-- respect de la vie privée, en particulier pour les personnes vivantes ;
-- séparation stricte entre code public et données familiales privées ;
-- traçabilité des informations grâce aux sources d'archives ;
-- solution simple à exploiter et à sauvegarder sur un hébergement OVH unique ;
-- accessibilité et compatibilité mobile dès la conception.
+- prioritise readability and navigation across large family branches;
+- protect privacy, especially for living people;
+- strictly separate public source code from private family data;
+- make historical claims traceable to their sources;
+- keep hosting, deployment, and backups simple;
+- design for accessibility and mobile devices from the start.
 
 ## Documentation
 
-- [Vision du produit](docs/vision-produit.md)
-- [Fonctionnalités](docs/fonctionnalites.md)
-- [Modèle de données](docs/modele-de-donnees.md)
-- [Architecture et hébergement](docs/architecture.md)
-- [Confidentialité et sécurité](docs/confidentialite-securite.md)
-- [Numérisation et import des archives](docs/import-des-archives.md)
-- [Décisions à prendre](docs/decisions-ouvertes.md)
+- [Product vision](docs/product-vision.md)
+- [Features](docs/features.md)
+- [Data model](docs/data-model.md)
+- [Architecture and hosting](docs/architecture.md)
+- [Privacy and security](docs/privacy-and-security.md)
+- [Archive digitisation and import](docs/archive-digitisation.md)
+- [Open decisions](docs/open-decisions.md)
 
-## Contribuer
+## Contributing
 
-Avant tout commit, vérifier qu'aucun contenu privé n'est présent dans les fichiers, l'historique Git ou les métadonnées des médias. Les secrets seront fournis uniquement au service d'hébergement par son gestionnaire de secrets ou sa configuration serveur.
+Before every commit, verify that no private content appears in files, Git history, logs, or media metadata. Secrets must only be supplied through the hosting provider's secret management or server configuration.
+
+Website interface strings and user-facing content are written in French. Source code, commit messages, specifications, and technical documentation are written in English.
 
 ## Licence
 
-Aucune licence n'est accordée pour le moment. Tous droits réservés.
+No licence is granted at this time. All rights reserved.

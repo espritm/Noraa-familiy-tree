@@ -1,49 +1,49 @@
-# Architecture et hébergement
+# Architecture and hosting
 
-## Contraintes connues
+## Known constraints
 
-- domaine : `noraaesprit.fr` ;
-- chemin public réservé : `/familiy-tree` ;
-- hébergement : OVH ;
-- un seul environnement de production, conformément au besoin de simplicité ;
-- dépôt GitHub public pour le code uniquement ;
-- données, médias et secrets privés hors de GitHub.
+- domain: `noraaesprit.fr`;
+- reserved application path: `/familiy-tree`;
+- hosting provider: OVH;
+- one production environment, keeping operations simple;
+- public GitHub repository for source code only;
+- private data, media, and secrets stored outside GitHub.
 
-## Architecture cible provisoire
+## Provisional target architecture
 
-L'application sera composée d'une interface web, d'une API exécutée côté serveur, d'une base de données privée et d'un stockage privé pour les médias. L'authentification doit être validée côté serveur avant que l'API ou les fichiers familiaux ne soient servis.
+The application will consist of a web interface, a server-side API, a private database, and private media storage. Authentication must be validated on the server before the API or family files are served.
 
-Le choix final dépend du type d'offre OVH : hébergement mutualisé avec PHP/MySQL, VPS, Public Cloud ou autre. La solution la plus simple compatible avec l'offre existante sera privilégiée.
+The final technology choice depends on the exact OVH product: shared PHP/MySQL hosting, VPS, Public Cloud, or another offer. We will prefer the simplest secure solution supported by the existing plan.
 
-## Intégration au site existant
+## Existing website integration
 
-Deux options seront évaluées :
+Two options will be assessed:
 
-1. conserver WordPress pour le site principal et déployer l'application sous `/familiy-tree` via configuration du serveur ou reverse proxy ;
-2. remplacer WordPress si le site existant n'a pas d'autre usage et si cela simplifie nettement l'exploitation.
+1. retain WordPress for the main website and deploy the application under `/familiy-tree` through server configuration or a reverse proxy;
+2. replace WordPress if the existing website has no other purpose and removal significantly simplifies operations.
 
-WordPress ne doit pas être supprimé avant inventaire, sauvegarde complète et validation explicite.
+WordPress must not be removed before an inventory, complete backup, and explicit approval.
 
-## Déploiement
+## Deployment
 
-- branche de référence : `main` ;
-- validation automatique du code avant déploiement ;
-- déploiement unique vers OVH après succès des contrôles ;
-- secrets injectés dans la configuration OVH ou dans des variables d'environnement ;
-- migrations de base de données sauvegardées et réversibles ;
-- procédure de retour à la version précédente.
+- reference branch: `main`;
+- automated code validation before deployment;
+- one production deployment to OVH after checks pass;
+- secrets injected through OVH configuration or environment variables;
+- backed-up and reversible database migrations;
+- documented rollback procedure.
 
-## Sauvegardes
+## Backups
 
-- base de données chiffrée ou sauvegarde chiffrée ;
-- médias privés inclus dans une sauvegarde distincte ;
-- au moins une copie hors de l'hébergement OVH ;
-- test périodique de restauration ;
-- politique de rétention à définir avec la famille.
+- encrypted database or encrypted database backups;
+- private media included in a separate backup;
+- at least one copy stored outside the OVH hosting account;
+- periodic restoration test;
+- retention policy agreed with the family.
 
-## Observabilité minimale
+## Minimum observability
 
-- disponibilité de la page ;
-- erreurs serveur sans données personnelles dans les journaux ;
-- tentatives d'authentification anormales ;
-- espace disque et réussite des sauvegardes.
+- page availability;
+- server errors without personal data in logs;
+- abnormal authentication attempts;
+- disk usage and backup completion.
