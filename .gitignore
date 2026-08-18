@@ -1,0 +1,41 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Private genealogy data and family media
+data/private/
+private/
+uploads/
+media/private/
+archives/private/
+*.ged
+*.gedcom
+
+# Dependencies and builds
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+.cache/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# WordPress/local hosting artifacts
+wp-config.php
+.htpasswd
