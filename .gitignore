@@ -1,4 +1,4 @@
-# Secrets and local configuration
+# Local environment and secrets
 .env
 .env.*
 !.env.example
@@ -17,9 +17,26 @@ archives/private/
 *.ged
 *.gedcom
 
-# Dependencies and builds
-node_modules/
-.next/
+# PHP and Laravel
+/vendor/
+/database/*.sqlite
+/storage/*.key
+/storage/app/private/
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+/bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# Front-end dependencies and builds
+/node_modules/
+/public/build/
+/public/hot
 dist/
 build/
 coverage/
@@ -29,13 +46,16 @@ coverage/
 tmp/
 temp/
 .cache/
+.phpunit.cache/
+.phpunit.result.cache
 
 # Editors and operating systems
-.idea/
-.vscode/
+/.idea/
+/.vscode/
 .DS_Store
 Thumbs.db
 
-# WordPress/local hosting artifacts
+# Hosting-specific private files
 wp-config.php
 .htpasswd
+/deploy/
