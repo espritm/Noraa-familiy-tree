@@ -1,0 +1,113 @@
+name: Deploy to OVH
+
+run-name: Deploy ${{ github.sha }} to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DEPLOY to confirm the production deployment
+        required: true
+        type: string
+      backup_confirmed:
+        description: I confirm that the current domain directory has been backed up
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: inputs.confirmation == 'DEPLOY' && inputs.backup_confirmed
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install and validate
+        run: |
+          cp .env.example .env
+          composer install --no-interaction --prefer-dist --no-progress
+          php artisan key:generate
+          npm ci
+          npm run build
+          php artisan test
+
+      - name: Build production release
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader
+          mkdir release
+          rsync -a ./ release/ \
+            --exclude '/release' \
+            --exclude '/.git' \
+            --exclude '/.github' \
+            --exclude '/.env*' \
+            --exclude '/data/private' \
+            --exclude '/node_modules' \
+            --exclude '/tests' \
+            --exclude '/docs' \
+            --exclude '/storage/logs/*' \
+            --exclude '/storage/framework/cache/data/*' \
+            --exclude '/storage/framework/sessions/*' \
+            --exclude '/storage/framework/views/*'
+          test ! -e release/.env
+          test ! -d release/data/private
+          printf '%s\n' "${GITHUB_SHA}" > release/DEPLOYED_COMMIT
+
+      - name: Validate deployment boundary
+        env:
+          REMOTE_PATH: ${{ secrets.OVH_REMOTE_PATH }}
+        run: |
+          case "${REMOTE_PATH}" in
+            ''|'/'|'.'|'..'|*'/../'*|../*|*/..)
+              echo 'The configured remote path is unsafe.' >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Configure trusted SSH host key
+        env:
+          OVH_SFTP_HOST_KEY: ${{ secrets.OVH_SFTP_HOST_KEY }}
+        run: |
+          install -d -m 700 "${HOME}/.ssh"
+          printf '%s\n' "${OVH_SFTP_HOST_KEY}" > "${HOME}/.ssh/known_hosts"
+          chmod 600 "${HOME}/.ssh/known_hosts"
+
+      - name: Upload without remote deletion
+        env:
+          SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.OVH_SFTP_PORT }}
+          SFTP_USERNAME: ${{ secrets.OVH_SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.OVH_REMOTE_PATH }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          printf 'machine %s login %s password %s\n' "${SFTP_HOST}" "${SFTP_USERNAME}" "${SFTP_PASSWORD}" > "${HOME}/.netrc"
+          chmod 600 "${HOME}/.netrc"
+          lftp -c "
+            set cmd:fail-exit yes;
+            set net:max-retries 2;
+            set net:timeout 20;
+            set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts';
+            open sftp://${SFTP_HOST}:${SFTP_PORT};
+            mirror --reverse --only-newer --parallel=2 --verbose release \"${REMOTE_PATH}\";
+          "
