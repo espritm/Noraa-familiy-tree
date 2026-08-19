@@ -26,7 +26,7 @@ jobs:
   deploy:
     if: inputs.confirmation == 'DEPLOY' && inputs.backup_confirmed
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     environment: production
 
     steps:
@@ -70,7 +70,7 @@ jobs:
             --exclude '/storage/framework/views/*'
           test ! -e release/.env
           test ! -d release/data/private
-          printf '%s\n' "${GITHUB_SHA}" > release/DEPLOYED_COMMIT
+          printf '%s\n' "${GITHUB_SHA}" > "${RUNNER_TEMP}/DEPLOYED_COMMIT"
 
       - name: Validate deployment boundary
         env:
@@ -98,6 +98,7 @@ jobs:
           SFTP_USERNAME: ${{ secrets.OVH_SFTP_USERNAME }}
           SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
           REMOTE_PATH: ${{ secrets.OVH_REMOTE_PATH }}
+          DEPLOY_MARKER_FILE: ${{ runner.temp }}/DEPLOYED_COMMIT
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
@@ -119,7 +120,8 @@ jobs:
               'set net:timeout 20;',
               f"set sftp:connect-program {quote(f'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known_hosts}')};",
               f"open -u {quote(os.environ['SFTP_USERNAME'])},{quote(os.environ['SFTP_PASSWORD'])} {quote(endpoint)};",
-              f"mirror --reverse --only-newer --parallel=2 --verbose release {quote(os.environ['REMOTE_PATH'])};",
+              f"mirror --reverse --continue --only-newer --parallel=2 --verbose release {quote(os.environ['REMOTE_PATH'])};",
+              f"put -O {quote(os.environ['REMOTE_PATH'])} {quote(os.environ['DEPLOY_MARKER_FILE'])};",
           ]
           command_file.write_text('\n'.join(commands) + '\n', encoding='utf-8')
           command_file.chmod(0o600)
