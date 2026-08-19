@@ -13,7 +13,7 @@ The application is intended to be available at `https://noraaesprit.fr/familiy-t
 
 ## Project status
 
-The project is in its first implementation phase. The current prototype provides a French interactive tree backed by fictional in-memory data. Authentication, private persistence, and production deployment are intentionally not enabled yet.
+The project is in its first implementation phase. The current prototype provides a French interactive tree backed by fictional in-memory data. Shared-password authentication with server-side sessions and brute-force protection is implemented. Private persistence and production deployment are intentionally not enabled yet.
 
 ## Technology
 

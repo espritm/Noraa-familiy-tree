@@ -29,7 +29,13 @@
             <div class="search-results" data-search-results hidden></div>
         </form>
 
-        <button class="quiet-button" type="button" data-open-about>À propos</button>
+        <div class="topbar-actions">
+            <button class="quiet-button" type="button" data-open-about>À propos</button>
+            <form method="post" action="{{ route('family-access.logout') }}">
+                @csrf
+                <button class="quiet-button" type="submit">Se déconnecter</button>
+            </form>
+        </div>
     </header>
 
     <section class="intro" aria-labelledby="tree-heading">
