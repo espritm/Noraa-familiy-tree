@@ -14,6 +14,8 @@ All hosting connection fields are confidential, including values that are not pa
 
 Application secrets such as the Laravel application key, database credentials, and family access password hash must remain in the production `.env` file managed directly on the server. They must not be uploaded from the public repository.
 
+Because the production database is shared at hosting-account level, the application must use its dedicated `noraa_family_` table prefix. Its session cookie must also use the project-specific name documented in `.env.example`. These boundaries prevent collisions with unrelated sites on the same hosting plan.
+
 ## Safety gates
 
 Before enabling automated deployment:
