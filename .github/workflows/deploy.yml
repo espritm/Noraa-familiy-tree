@@ -101,13 +101,27 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
-          printf 'machine %s login %s password %s\n' "${SFTP_HOST}" "${SFTP_USERNAME}" "${SFTP_PASSWORD}" > "${HOME}/.netrc"
-          chmod 600 "${HOME}/.netrc"
-          lftp -c "
-            set cmd:fail-exit yes;
-            set net:max-retries 2;
-            set net:timeout 20;
-            set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts';
-            open sftp://${SFTP_HOST}:${SFTP_PORT};
-            mirror --reverse --only-newer --parallel=2 --verbose release \"${REMOTE_PATH}\";
-          "
+          export LFTP_COMMAND_FILE="${RUNNER_TEMP}/deploy.lftp"
+          trap 'rm -f "${LFTP_COMMAND_FILE}"' EXIT
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def quote(value: str) -> str:
+              return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') + '"'
+
+          command_file = Path(os.environ['LFTP_COMMAND_FILE'])
+          known_hosts = Path.home() / '.ssh' / 'known_hosts'
+          endpoint = f"sftp://{os.environ['SFTP_HOST']}:{os.environ['SFTP_PORT']}"
+          commands = [
+              'set cmd:fail-exit yes;',
+              'set net:max-retries 2;',
+              'set net:timeout 20;',
+              f"set sftp:connect-program {quote(f'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known_hosts}')};",
+              f"open -u {quote(os.environ['SFTP_USERNAME'])},{quote(os.environ['SFTP_PASSWORD'])} {quote(endpoint)};",
+              f"mirror --reverse --only-newer --parallel=2 --verbose release {quote(os.environ['REMOTE_PATH'])};",
+          ]
+          command_file.write_text('\n'.join(commands) + '\n', encoding='utf-8')
+          command_file.chmod(0o600)
+          PY
+          lftp -f "${LFTP_COMMAND_FILE}"
