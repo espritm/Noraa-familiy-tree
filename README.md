@@ -13,16 +13,16 @@ The application is intended to be available at `https://noraaesprit.fr/family-tr
 
 ## Project status
 
-The project is in its first implementation phase. The current prototype provides a French interactive tree backed by fictional in-memory data. Shared-password authentication with server-side sessions and brute-force protection is implemented. Private persistence and production deployment are intentionally not enabled yet.
+The first production slice is available. It provides a French interactive tree, shared-password authentication with server-side sessions and brute-force protection, and a private JSON dataset stored outside the public web root. The public repository and compiled assets retain only fictional fallback data.
 
 ## Technology
 
 - Laravel 13 and PHP 8.4;
 - Blade, modern CSS, and browser JavaScript for the first interactive slice;
 - Vite for front-end assets;
-- MySQL for the future private production database;
+- a private server-side JSON dataset for the first production release, with MySQL reserved for later editing and richer records;
 - PHPUnit and GitHub Actions for validation;
-- SFTP deployment to OVH only after authentication and private storage are complete.
+- manually approved SFTP workflows for application releases and the separately supplied private dataset.
 
 ## Local development
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
@@ -63,6 +64,39 @@ class FamilyTreePageTest extends TestCase
             ->assertSee('Données fictives')
             ->assertSee('Rechercher une personne')
             ->assertSee('Se déconnecter');
+    }
+
+    public function test_authenticated_tree_loads_only_whitelisted_private_data_without_caching(): void
+    {
+        $privateDirectory = storage_path('framework/testing/family-tree');
+        $privatePath = $privateDirectory.'/family.json';
+        File::ensureDirectoryExists($privateDirectory);
+        File::put($privatePath, json_encode([
+            'people' => [[
+                'id' => 'fictional-private-person',
+                'given_names' => ['Éloïse'],
+                'birth_name' => 'Testeur',
+                'birth_date' => '2001-02-03',
+                'internal_note' => 'must-never-reach-the-browser',
+            ]],
+            'parentage' => [],
+            'review_notes' => ['private-review-marker'],
+        ], JSON_THROW_ON_ERROR));
+        config()->set('family-data.path', $privatePath);
+
+        try {
+            $this->withSession(['family_access_authenticated' => true])
+                ->get('/family-tree')
+                ->assertOk()
+                ->assertSee('Données familiales')
+                ->assertSee('Éloïse')
+                ->assertDontSee('must-never-reach-the-browser')
+                ->assertDontSee('private-review-marker')
+                ->assertHeader('Cache-Control', 'max-age=0, no-store, private')
+                ->assertHeader('Pragma', 'no-cache');
+        } finally {
+            File::deleteDirectory($privateDirectory);
+        }
     }
 
     public function test_wrong_password_is_rejected_without_entering_it_in_session(): void

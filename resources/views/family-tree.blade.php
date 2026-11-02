@@ -12,6 +12,10 @@
 <body>
 <a class="skip-link" href="#tree-stage">Aller à l’arbre</a>
 
+@if ($familyData !== null)
+    <script type="application/json" data-family-tree-data>{!! json_encode($familyData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
+@endif
+
 <main class="app-shell" data-family-tree>
     <header class="topbar">
         <div class="brand-block">
@@ -40,14 +44,14 @@
 
     <section class="intro" aria-labelledby="tree-heading">
         <div>
-            <p class="eyebrow">Sept générations, une histoire</p>
+            <p class="eyebrow">Plusieurs générations, une histoire</p>
             <h2 id="tree-heading">Notre arbre familial</h2>
             <p>Faites glisser l’arbre pour le parcourir, zoomez pour prendre du recul et sélectionnez une personne pour découvrir son histoire.</p>
         </div>
         <div class="legend" aria-label="Légende">
             <span><i class="legend-line parent"></i>Filiation</span>
             <span><i class="legend-line union"></i>Union</span>
-            <span class="fiction-badge">Données fictives</span>
+            <span class="fiction-badge">{{ $isPrivateData ? 'Données familiales' : 'Données fictives' }}</span>
         </div>
     </section>
 
@@ -99,7 +103,11 @@
         </div>
     </section>
 
-    <p class="privacy-note">Prototype visuel — toutes les personnes et informations affichées sont fictives.</p>
+    <p class="privacy-note">
+        {{ $isPrivateData
+            ? 'Espace familial privé — les informations affichées sont réservées aux personnes autorisées.'
+            : 'Prototype visuel — toutes les personnes et informations affichées sont fictives.' }}
+    </p>
 </main>
 
 <aside class="person-drawer" data-drawer aria-hidden="true" aria-labelledby="drawer-name">
@@ -110,16 +118,18 @@
     <p class="lifespan" data-drawer-lifespan>1948 — aujourd’hui</p>
     <dl class="facts" data-drawer-facts></dl>
     <section class="story">
-        <h3>Son histoire</h3>
+        <h3>Informations complémentaires</h3>
         <p data-drawer-story></p>
     </section>
     <section>
-        <div class="section-title"><h3>Photos et documents</h3><span>3 éléments</span></div>
+        <div class="section-title"><h3>Photos et documents</h3><span>{{ $isPrivateData ? 'À venir' : '3 éléments' }}</span></div>
+        @unless ($isPrivateData)
         <div class="gallery" aria-label="Aperçu de la galerie">
             <div class="gallery-item warm">Portrait</div>
             <div class="gallery-item paper">Acte</div>
             <div class="gallery-item landscape">Lieu</div>
         </div>
+        @endunless
     </section>
 </aside>
 <div class="backdrop" data-backdrop hidden></div>
@@ -129,7 +139,11 @@
     <p class="eyebrow">À propos</p>
     <h2>Un lieu pour transmettre</h2>
     <p>Ce projet rassemble les recherches familiales, les photographies et les sources d’archives dans une expérience simple à explorer.</p>
-    <p class="dialog-note">Cette version utilise uniquement des informations fictives.</p>
+    <p class="dialog-note">
+        {{ $isPrivateData
+            ? 'Les informations familiales sont chargées depuis un stockage privé séparé du code public.'
+            : 'Cette version utilise uniquement des informations fictives.' }}
+    </p>
 </dialog>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const people = {
+let people = {
     jeanne: { name: 'Jeanne Morel', relation: 'Point de départ', lifespan: '1948 — aujourd’hui', initials: 'JM', birth: '14 mai 1948', place: 'Tours, France', occupation: 'Institutrice', source: 'Données fictives', story: 'Jeanne a grandi près de la Loire. Passionnée par les récits transmis lors des réunions de famille, elle a conservé lettres, photographies et souvenirs pour les générations suivantes.' },
     lucien: { name: 'Lucien Morel', relation: 'Grand-père', lifespan: '1919 — 1998', initials: 'LM', birth: '2 mars 1919', place: 'Blois, France', occupation: 'Menuisier', source: 'Données fictives', story: 'Lucien travaillait le bois et notait dans de petits carnets les événements importants de la famille.' },
     madeleine: { name: 'Madeleine Dubois', relation: 'Grand-mère', lifespan: '1922 — 2007', initials: 'MD', birth: '9 octobre 1922', place: 'Amboise, France', occupation: 'Couturière', source: 'Données fictives', story: 'Madeleine était reconnue pour sa mémoire des visages et des liens qui unissaient les différentes branches familiales.' },
@@ -20,6 +20,117 @@ if (root) {
     const hint = root.querySelector('[data-drag-hint]');
     const searchInput = root.querySelector('[data-search]');
     const searchResults = root.querySelector('[data-search-results]');
+    const privateDataElement = document.querySelector('[data-family-tree-data]');
+    const privateData = privateDataElement ? JSON.parse(privateDataElement.textContent) : null;
+    let canvasWidth = 1400;
+    let canvasHeight = 820;
+    let connectionsData = [
+        ['auguste', 'lucien'],
+        ['celestine', 'madeleine'],
+        ['lucien', 'jeanne'],
+        ['madeleine', 'jeanne'],
+        ['jeanne', 'claire'],
+        ['antoine', 'claire'],
+        ['jeanne', 'julien'],
+        ['antoine', 'julien'],
+    ];
+
+    const formatDate = (value) => {
+        if (!value || typeof value !== 'string') return 'Date inconnue';
+        const date = new Date(`${value}T00:00:00`);
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(date);
+    };
+
+    if (privateData?.people?.length) {
+        const palette = ['gold', 'blue', 'rose', 'green', 'ink'];
+        people = Object.fromEntries(privateData.people.map((person) => {
+            const givenNames = Array.isArray(person.given_names) ? person.given_names.join(' ') : String(person.given_names || '');
+            const birthName = String(person.birth_name || '');
+            const customaryName = String(person.customary_name || '');
+            const displaySurname = customaryName || birthName;
+            const name = [givenNames, displaySurname].filter(Boolean).join(' ') || 'Nom inconnu';
+            const initials = `${givenNames.charAt(0)}${displaySurname.charAt(0)}`.toLocaleUpperCase('fr') || '?';
+            const birth = formatDate(person.birth_date);
+            const death = person.death_date ? formatDate(person.death_date) : null;
+            const lifespan = death
+                ? `${birth} — ${death}`
+                : person.living_status === 'living'
+                    ? `${birth} — aujourd’hui`
+                    : birth;
+
+            return [person.id, {
+                name,
+                relation: 'Membre de la famille',
+                lifespan,
+                initials,
+                birth,
+                birthName: birthName || 'Non renseigné',
+                customaryName: customaryName || 'Non renseigné',
+                status: person.living_status === 'living' ? 'Vivante ou vivant' : 'Non renseigné',
+                story: 'Les informations complémentaires seront ajoutées au fil des recherches familiales.',
+            }];
+        }));
+
+        connectionsData = privateData.parentage.map((relationship) => [relationship.parent_id, relationship.child_id]);
+
+        const levels = new Map(Object.keys(people).map((id) => [id, 0]));
+        for (let iteration = 0; iteration < Object.keys(people).length; iteration += 1) {
+            let changed = false;
+            connectionsData.forEach(([parentId, childId]) => {
+                const nextLevel = (levels.get(parentId) || 0) + 1;
+                if (nextLevel > (levels.get(childId) || 0)) {
+                    levels.set(childId, nextLevel);
+                    changed = true;
+                }
+            });
+            if (!changed) break;
+        }
+
+        const groups = new Map();
+        Object.keys(people).forEach((id) => {
+            const level = levels.get(id) || 0;
+            if (!groups.has(level)) groups.set(level, []);
+            groups.get(level).push(id);
+        });
+
+        const largestGeneration = Math.max(...Array.from(groups.values(), (group) => group.length));
+        canvasWidth = Math.max(1400, largestGeneration * 300 + 180);
+        canvasHeight = Math.max(820, groups.size * 220 + 180);
+        connections.setAttribute('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`);
+        canvas.querySelectorAll('[data-person]').forEach((card) => card.remove());
+
+        Array.from(groups.entries()).sort(([left], [right]) => left - right).forEach(([level, ids]) => {
+            const rowWidth = ids.length * 280;
+            const startX = (canvasWidth - rowWidth) / 2 + 10;
+            ids.forEach((id, index) => {
+                const person = people[id];
+                const card = document.createElement('article');
+                card.className = 'person-card';
+                card.style.setProperty('--x', `${startX + index * 280}px`);
+                card.style.setProperty('--y', `${70 + level * 210}px`);
+                card.dataset.person = id;
+                card.tabIndex = 0;
+
+                const portrait = document.createElement('div');
+                portrait.className = `portrait portrait-${palette[(level + index) % palette.length]}`;
+                portrait.textContent = person.initials;
+                const details = document.createElement('div');
+                const relationship = document.createElement('span');
+                relationship.className = 'relationship';
+                relationship.textContent = person.relation;
+                const heading = document.createElement('h3');
+                heading.textContent = person.name;
+                const dates = document.createElement('p');
+                dates.textContent = person.lifespan;
+                details.append(relationship, heading, dates);
+                card.append(portrait, details);
+                canvas.appendChild(card);
+            });
+        });
+    }
+
+    const personCards = new Map(Array.from(root.querySelectorAll('[data-person]'), (card) => [card.dataset.person, card]));
     let scale = 0.88;
     let x = 0;
     let y = 0;
@@ -31,8 +142,9 @@ if (root) {
     let lastFocused = null;
 
     const drawPath = (from, to, className = '') => {
-        const start = document.querySelector(`[data-person="${from}"]`);
-        const end = document.querySelector(`[data-person="${to}"]`);
+        const start = personCards.get(from);
+        const end = personCards.get(to);
+        if (!start || !end) return;
         const sx = parseFloat(start.style.getPropertyValue('--x')) + 130;
         const sy = parseFloat(start.style.getPropertyValue('--y')) + 94;
         const ex = parseFloat(end.style.getPropertyValue('--x')) + 130;
@@ -44,25 +156,20 @@ if (root) {
         connections.appendChild(path);
     };
 
-    drawPath('auguste', 'lucien');
-    drawPath('celestine', 'madeleine');
-    drawPath('lucien', 'jeanne');
-    drawPath('madeleine', 'jeanne');
-    drawPath('jeanne', 'claire');
-    drawPath('antoine', 'claire');
-    drawPath('jeanne', 'julien');
-    drawPath('antoine', 'julien');
+    connectionsData.forEach(([parentId, childId]) => drawPath(parentId, childId));
 
-    const union = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    union.setAttribute('class', 'union');
-    union.setAttribute('d', 'M 850 382 C 875 370, 900 370, 915 382');
-    connections.appendChild(union);
+    if (!privateData) {
+        const union = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        union.setAttribute('class', 'union');
+        union.setAttribute('d', 'M 850 382 C 875 370, 900 370, 915 382');
+        connections.appendChild(union);
+    }
 
     const applyTransform = () => { canvas.style.transform = `translate(${x}px, ${y}px) scale(${scale})`; };
     const recenter = () => {
         scale = window.innerWidth < 780 ? 0.7 : 0.88;
-        x = stage.clientWidth / 2 - 720 * scale;
-        y = stage.clientHeight / 2 - 390 * scale;
+        x = stage.clientWidth / 2 - (canvasWidth / 2) * scale;
+        y = stage.clientHeight / 2 - (canvasHeight / 2) * scale;
         applyTransform();
     };
     const zoom = (delta, centerX = stage.clientWidth / 2, centerY = stage.clientHeight / 2) => {
@@ -73,7 +180,8 @@ if (root) {
         applyTransform();
     };
     const focusPerson = (id) => {
-        const card = root.querySelector(`[data-person="${id}"]`);
+        const card = personCards.get(id);
+        if (!card) return;
         const px = parseFloat(card.style.getPropertyValue('--x')) + 130;
         const py = parseFloat(card.style.getPropertyValue('--y')) + 47;
         x = stage.clientWidth / 2 - px * scale;
@@ -124,9 +232,29 @@ if (root) {
         drawer.querySelector('[data-drawer-name]').textContent = person.name;
         drawer.querySelector('[data-drawer-lifespan]').textContent = person.lifespan;
         drawer.querySelector('[data-drawer-story]').textContent = person.story;
-        drawer.querySelector('[data-drawer-facts]').innerHTML = [
-            ['Naissance', person.birth], ['Lieu', person.place], ['Profession', person.occupation], ['Source', person.source],
-        ].map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('');
+        const facts = privateData
+            ? [
+                ['Naissance', person.birth],
+                ['Nom de naissance', person.birthName],
+                ['Nom d’usage', person.customaryName],
+                ['Statut', person.status],
+            ]
+            : [
+                ['Naissance', person.birth],
+                ['Lieu', person.place],
+                ['Profession', person.occupation],
+                ['Source', person.source],
+            ];
+        const factsList = drawer.querySelector('[data-drawer-facts]');
+        factsList.replaceChildren(...facts.map(([label, value]) => {
+            const row = document.createElement('div');
+            const term = document.createElement('dt');
+            const description = document.createElement('dd');
+            term.textContent = label;
+            description.textContent = value;
+            row.append(term, description);
+            return row;
+        }));
         drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); backdrop.hidden = false;
         drawer.querySelector('[data-close-drawer]').focus();
     };
@@ -147,9 +275,25 @@ if (root) {
         const query = searchInput.value.trim().toLocaleLowerCase('fr');
         if (!query) { searchResults.hidden = true; return; }
         const matches = Object.entries(people).filter(([, person]) => person.name.toLocaleLowerCase('fr').includes(query));
-        searchResults.innerHTML = matches.length
-            ? matches.map(([id, person]) => `<button class="search-result" type="button" data-result="${id}"><strong>${person.name}</strong><br><small>${person.lifespan}</small></button>`).join('')
-            : '<p class="search-result">Aucun résultat</p>';
+        if (matches.length) {
+            searchResults.replaceChildren(...matches.map(([id, person]) => {
+                const result = document.createElement('button');
+                result.className = 'search-result';
+                result.type = 'button';
+                result.dataset.result = id;
+                const name = document.createElement('strong');
+                name.textContent = person.name;
+                const dates = document.createElement('small');
+                dates.textContent = person.lifespan;
+                result.append(name, document.createElement('br'), dates);
+                return result;
+            }));
+        } else {
+            const empty = document.createElement('p');
+            empty.className = 'search-result';
+            empty.textContent = 'Aucun résultat';
+            searchResults.replaceChildren(empty);
+        }
         searchResults.hidden = false;
     };
     searchInput.addEventListener('input', updateSearch);

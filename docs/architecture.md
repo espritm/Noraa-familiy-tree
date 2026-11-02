@@ -13,9 +13,9 @@
 
 ## Target architecture
 
-The application uses Laravel 13 as its server-side framework. Laravel owns routing, sessions, authentication, authorisation, rate limiting, database access, validation, private media delivery, and security headers. The interactive tree is delivered as compiled browser assets and communicates only with authenticated server routes once real data is introduced.
+The application uses Laravel 13 as its server-side framework. Laravel owns routing, sessions, authentication, authorisation, rate limiting, validation, private media delivery, and security headers. After authentication, the tree controller reads a private server-side JSON file, whitelists the fields required by the interface, and embeds only that filtered payload in a non-cacheable response. The compiled browser assets contain fictional fallback data only.
 
-Production uses a dedicated MySQL database rather than reusing any database belonging to another site. Private media lives under Laravel's non-public storage directory and is streamed through authorised application routes. Only the `public/` directory is exposed by the web server.
+The first production release stores genealogical records in `storage/app/private/family.json`. A later editing workflow may migrate them to a dedicated MySQL database rather than reusing any database belonging to another site. Private media lives under Laravel's non-public storage directory and is streamed through authorised application routes. Only the `public/` directory is exposed by the web server.
 
 ## Hosting isolation
 
