@@ -6,6 +6,8 @@ The GitHub repository is public but contains only source code, technical documen
 
 The public nature of the domain's home page does not make `/family-tree` data public. No private data may appear in the initial HTML, JavaScript bundle, public cache, sitemap, or social metadata before authentication.
 
+The production dataset is kept in Laravel's non-public storage directory. It is loaded only after the access middleware accepts the session, filtered through an explicit field allowlist, and returned with `private, no-store` cache directives. Deployment releases exclude this directory.
+
 ## Authentication
 
 The password will be set directly in secure hosting configuration. It must never be sent through GitHub or this conversation and will be stored as a strong password hash rather than plaintext.

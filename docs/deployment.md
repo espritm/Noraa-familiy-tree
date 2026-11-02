@@ -1,6 +1,6 @@
 # Deployment
 
-Production deployment remains manual. The workflow can upload a fictional-data release only after its explicit confirmation gates pass. Real family data and private media remain outside the deployment workflow.
+Production deployment remains manual. Application releases contain fictional fallback data only. A separate, manually approved workflow can upload an ephemeral copy of the private family dataset to non-public Laravel storage; the dataset never enters Git history or workflow artifacts.
 
 ## Required GitHub secrets
 
@@ -14,6 +14,8 @@ All hosting connection fields are confidential, including values that are not pa
 - `OVH_SFTP_HOST_KEY`
 
 Application secrets such as the Laravel application key, database credentials, and family access password hash must remain in the production `.env` file managed directly on the server. They must not be uploaded from the public repository.
+
+`OVH_FAMILY_DATA_B64` is a temporary GitHub `production` environment secret used only while running the private-data synchronisation. Create it from the ignored local dataset, run the workflow, verify success, and delete the secret immediately. The workflow validates the JSON structure, uploads it to `storage/app/private/family.json`, downloads a verification copy, and compares the bytes without printing the dataset.
 
 Because the production database is shared at hosting-account level, the application must use its dedicated `noraa_family_` table prefix. Its session cookie must also use the project-specific name documented in `.env.example`. These boundaries prevent collisions with unrelated sites on the same hosting plan.
 
@@ -43,8 +45,11 @@ Before enabling automated deployment:
 7. Add the six repository secrets listed above and protect the GitHub `production` environment.
 8. Run the deployment workflow manually from `main`, type `DEPLOY`, and confirm that the backup exists.
 9. Verify the public home, protected tree, login failure, logout, HTTPS cookies, security headers, and separate logs.
+10. Add the temporary private-data secret, run `Sync private family data` with `SYNC_DATA` and backup confirmation, verify the authenticated tree, then delete the temporary secret.
 
 The first workflow intentionally uploads without deleting any remote file. A deletion-enabled synchronisation must not be introduced until the remote boundary and rollback procedure have both been exercised successfully.
+
+Application deployments exclude `storage/app/private`, so later releases cannot overwrite or delete the private dataset.
 
 ## Production environment values
 
