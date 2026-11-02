@@ -99,7 +99,6 @@ jobs:
               'set net:timeout 20;',
               f"set sftp:connect-program {quote(f'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known_hosts}')};",
               f"open -u {quote(os.environ['SFTP_USERNAME'])},{quote(os.environ['SFTP_PASSWORD'])} {quote(endpoint)};",
-              f"mkdir -p {quote(remote_directory)};",
               f"put {quote(os.environ['SOURCE_DATA_FILE'])} -o {quote(remote_data)};",
               f"get {quote(remote_data)} -o {quote(os.environ['REMOTE_DATA_COPY'])};",
           ]
