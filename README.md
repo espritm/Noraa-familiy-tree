@@ -6,7 +6,7 @@ A private family website for exploring an interactive family tree and the histor
 
 The project aims to provide a comfortable experience on desktop, tablet, and mobile: zooming, free panning, following family branches, searching for a person, and opening a detailed profile with photographs and sources.
 
-The application is intended to be available at `https://noraaesprit.fr/familiy-tree` behind authentication shared with authorised relatives.
+The application is intended to be available at `https://noraaesprit.fr/family-tree` behind authentication shared with authorised relatives.
 
 > [!IMPORTANT]
 > This repository is public. It must never contain real genealogical data, family photographs, archival documents, hosting identifiers, addresses, credentials, or secrets. All committed examples must be entirely fictional.

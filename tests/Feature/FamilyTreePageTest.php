@@ -26,14 +26,21 @@ class FamilyTreePageTest extends TestCase
 
     public function test_family_tree_redirects_guests_without_rendering_tree_content(): void
     {
-        $this->get('/familiy-tree')
-            ->assertRedirect('/familiy-tree/login')
+        $this->get('/family-tree')
+            ->assertRedirect('/family-tree/login')
             ->assertDontSee('Notre arbre familial');
+    }
+
+    public function test_misspelled_legacy_paths_are_not_available(): void
+    {
+        $this->get('/familiy-tree')->assertNotFound();
+        $this->get('/familiy-tree/login')->assertNotFound();
+        $this->post('/familiy-tree/login', ['password' => 'irrelevant'])->assertNotFound();
     }
 
     public function test_login_page_has_security_headers_and_password_form(): void
     {
-        $this->get('/familiy-tree/login')
+        $this->get('/family-tree/login')
             ->assertOk()
             ->assertSee('Accès à l’arbre familial')
             ->assertSee('autocomplete="current-password"', false)
@@ -44,13 +51,13 @@ class FamilyTreePageTest extends TestCase
 
     public function test_correct_password_authenticates_and_reveals_fictional_tree(): void
     {
-        $this->post('/familiy-tree/login', [
+        $this->post('/family-tree/login', [
             'password' => 'correct horse battery staple',
-        ])->assertRedirect('/familiy-tree');
+        ])->assertRedirect('/family-tree');
 
         $this->assertTrue(session('family_access_authenticated'));
 
-        $this->get('/familiy-tree')
+        $this->get('/family-tree')
             ->assertOk()
             ->assertSee('Notre arbre familial')
             ->assertSee('Données fictives')
@@ -60,9 +67,9 @@ class FamilyTreePageTest extends TestCase
 
     public function test_wrong_password_is_rejected_without_entering_it_in_session(): void
     {
-        $this->from('/familiy-tree/login')->post('/familiy-tree/login', [
+        $this->from('/family-tree/login')->post('/family-tree/login', [
             'password' => 'incorrect',
-        ])->assertRedirect('/familiy-tree/login')
+        ])->assertRedirect('/family-tree/login')
             ->assertSessionHasErrors('password')
             ->assertSessionMissing('_old_input.password');
 
@@ -72,11 +79,11 @@ class FamilyTreePageTest extends TestCase
     public function test_repeated_failures_are_rate_limited(): void
     {
         foreach (range(1, 5) as $attempt) {
-            $this->post('/familiy-tree/login', ['password' => "wrong-{$attempt}"])
+            $this->post('/family-tree/login', ['password' => "wrong-{$attempt}"])
                 ->assertRedirect();
         }
 
-        $this->post('/familiy-tree/login', ['password' => 'wrong-again'])
+        $this->post('/family-tree/login', ['password' => 'wrong-again'])
             ->assertStatus(429)
             ->assertSessionHasErrors('password');
     }
@@ -84,8 +91,8 @@ class FamilyTreePageTest extends TestCase
     public function test_logout_invalidates_family_access(): void
     {
         $this->withSession(['family_access_authenticated' => true])
-            ->post('/familiy-tree/logout')
-            ->assertRedirect('/familiy-tree/login')
+            ->post('/family-tree/logout')
+            ->assertRedirect('/family-tree/login')
             ->assertSessionMissing('family_access_authenticated');
     }
 }

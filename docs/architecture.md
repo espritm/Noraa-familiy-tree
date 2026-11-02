@@ -3,7 +3,7 @@
 ## Known constraints
 
 - domain: `noraaesprit.fr`;
-- reserved application path: `/familiy-tree`;
+- reserved application path: `/family-tree`;
 - hosting: an OVH shared Personal plan;
 - isolated multisite document root dedicated to this domain;
 - PHP 8.4 selected through a site-specific `.ovhconfig`;
