@@ -84,8 +84,8 @@ jobs:
               'set net:timeout 20;',
               f"set sftp:connect-program {quote(f'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known_hosts}')};",
               f"open -u {quote(os.environ['SFTP_USERNAME'])},{quote(os.environ['SFTP_PASSWORD'])} {quote(endpoint)};",
-              f"put -o {quote(remote_env)} {quote(os.environ['SOURCE_ENV_FILE'])};",
-              f"get -o {quote(os.environ['REMOTE_ENV_COPY'])} {quote(remote_env)};",
+              f"put {quote(os.environ['SOURCE_ENV_FILE'])} -o {quote(remote_env)};",
+              f"get {quote(remote_env)} -o {quote(os.environ['REMOTE_ENV_COPY'])};",
           ]
           command_file.write_text('\n'.join(commands) + '\n', encoding='utf-8')
           command_file.chmod(0o600)
