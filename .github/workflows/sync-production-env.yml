@@ -1,0 +1,95 @@
+name: Sync production environment
+
+run-name: Sync the private production environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type SYNC_ENV to confirm the private configuration update
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: inputs.confirmation == 'SYNC_ENV'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - name: Restore the private environment file
+        env:
+          PRODUCTION_ENV_B64: ${{ secrets.OVH_PRODUCTION_ENV_B64 }}
+        run: |
+          test -n "${PRODUCTION_ENV_B64}"
+          printf '%s' "${PRODUCTION_ENV_B64}" | base64 --decode > "${RUNNER_TEMP}/production.env"
+          test -s "${RUNNER_TEMP}/production.env"
+          grep -qx 'APP_ENV=production' "${RUNNER_TEMP}/production.env"
+          grep -qx 'APP_DEBUG=false' "${RUNNER_TEMP}/production.env"
+          grep -q '^FAMILY_ACCESS_PASSWORD_HASH=.' "${RUNNER_TEMP}/production.env"
+          chmod 600 "${RUNNER_TEMP}/production.env"
+
+      - name: Configure trusted SSH host key
+        env:
+          OVH_SFTP_HOST_KEY: ${{ secrets.OVH_SFTP_HOST_KEY }}
+        run: |
+          install -d -m 700 "${HOME}/.ssh"
+          printf '%s\n' "${OVH_SFTP_HOST_KEY}" > "${HOME}/.ssh/known_hosts"
+          chmod 600 "${HOME}/.ssh/known_hosts"
+
+      - name: Upload and verify the private environment file
+        env:
+          SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.OVH_SFTP_PORT }}
+          SFTP_USERNAME: ${{ secrets.OVH_SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.OVH_REMOTE_PATH }}
+          SOURCE_ENV_FILE: ${{ runner.temp }}/production.env
+          REMOTE_ENV_COPY: ${{ runner.temp }}/remote.env
+        run: |
+          case "${REMOTE_PATH}" in
+            ''|'/'|'.'|'..'|*'/../'*|../*|*/..)
+              echo 'The configured remote path is unsafe.' >&2
+              exit 1
+              ;;
+          esac
+
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          export LFTP_COMMAND_FILE="${RUNNER_TEMP}/sync-env.lftp"
+          trap 'rm -f "${LFTP_COMMAND_FILE}" "${SOURCE_ENV_FILE}" "${REMOTE_ENV_COPY}"' EXIT
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def quote(value: str) -> str:
+              return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') + '"'
+
+          command_file = Path(os.environ['LFTP_COMMAND_FILE'])
+          known_hosts = Path.home() / '.ssh' / 'known_hosts'
+          endpoint = f"sftp://{os.environ['SFTP_HOST']}:{os.environ['SFTP_PORT']}"
+          remote_env = f"{os.environ['REMOTE_PATH'].rstrip('/')}/.env"
+          commands = [
+              'set cmd:fail-exit yes;',
+              'set net:max-retries 2;',
+              'set net:timeout 20;',
+              f"set sftp:connect-program {quote(f'ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known_hosts}')};",
+              f"open -u {quote(os.environ['SFTP_USERNAME'])},{quote(os.environ['SFTP_PASSWORD'])} {quote(endpoint)};",
+              f"put -o {quote(remote_env)} {quote(os.environ['SOURCE_ENV_FILE'])};",
+              f"get -o {quote(os.environ['REMOTE_ENV_COPY'])} {quote(remote_env)};",
+          ]
+          command_file.write_text('\n'.join(commands) + '\n', encoding='utf-8')
+          command_file.chmod(0o600)
+          PY
+
+          lftp -f "${LFTP_COMMAND_FILE}"
+          cmp --silent "${SOURCE_ENV_FILE}" "${REMOTE_ENV_COPY}"
