@@ -4,7 +4,7 @@
 
 The GitHub repository is public but contains only source code, technical documentation, and fictional examples. Genealogical records, family media, exports, backups, and secrets remain in private storage.
 
-The public nature of the domain's home page does not make `/familiy-tree` data public. No private data may appear in the initial HTML, JavaScript bundle, public cache, sitemap, or social metadata before authentication.
+The public nature of the domain's home page does not make `/family-tree` data public. No private data may appear in the initial HTML, JavaScript bundle, public cache, sitemap, or social metadata before authentication.
 
 ## Authentication
 

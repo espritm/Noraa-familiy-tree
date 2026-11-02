@@ -4,7 +4,7 @@
 
 ### Access
 
-- application available under `/familiy-tree`;
+- application available under `/family-tree`;
 - authentication required before any private data is loaded;
 - sessions expire after a configurable duration;
 - explicit sign-out control.

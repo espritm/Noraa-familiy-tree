@@ -4,7 +4,7 @@
 
 - exact OVH plan and available access: FTP/SFTP, SSH, database, scheduled tasks, and server configuration;
 - current WordPress content and whether it must be retained;
-- technical ability to serve an application under `/familiy-tree`;
+- technical ability to serve an application under `/family-tree`;
 - backup mechanism already provided by OVH.
 
 ## Product
