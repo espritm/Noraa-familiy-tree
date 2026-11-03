@@ -15,6 +15,8 @@
 
 The application uses Laravel 13 as its server-side framework. Laravel owns routing, sessions, authentication, authorisation, rate limiting, validation, private media delivery, and security headers. After authentication, the tree controller reads a private server-side JSON file, whitelists the fields required by the interface, and embeds only that filtered payload in a non-cacheable response. The compiled browser assets contain fictional fallback data only.
 
+The browser transforms parentage records into family units: every distinct known parent set becomes an invisible junction shared by its children. ELK's layered graph layout aligns co-parents and siblings, orders generations from top to bottom, minimises crossings, and returns routed connection geometry. The HTML canvas and SVG always use the exact dimensions returned by the same layout result, preventing cards and lines from drifting apart.
+
 The first production release stores genealogical records in `storage/app/private/family.json`. A later editing workflow may migrate them to a dedicated MySQL database rather than reusing any database belonging to another site. Private media lives under Laravel's non-public storage directory and is streamed through authorised application routes. Only the `public/` directory is exposed by the web server.
 
 ## Hosting isolation

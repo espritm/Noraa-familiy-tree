@@ -31,4 +31,5 @@ jobs:
       - run: cp .env.example .env
       - run: php artisan key:generate
       - run: npm run build
+      - run: npm run test:js
       - run: php artisan test
