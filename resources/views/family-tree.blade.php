@@ -63,41 +63,9 @@
         </div>
 
         <div id="tree-stage" class="tree-stage" tabindex="0" data-stage>
-            <div class="tree-canvas" data-canvas>
+            <p class="tree-loading" data-tree-loading>Construction de l’arbre…</p>
+            <div class="tree-canvas" data-canvas aria-live="polite">
                 <svg class="connections" viewBox="0 0 1400 820" aria-hidden="true" data-connections></svg>
-
-                <article class="person-card" style="--x: 590px; --y: 335px" data-person="jeanne" tabindex="0">
-                    <div class="portrait portrait-gold">JM</div>
-                    <div><span class="relationship">Point de départ</span><h3>Jeanne Morel</h3><p>1948 — aujourd’hui</p></div>
-                </article>
-                <article class="person-card" style="--x: 360px; --y: 130px" data-person="lucien" tabindex="0">
-                    <div class="portrait portrait-blue">LM</div>
-                    <div><span class="relationship">Grand-père</span><h3>Lucien Morel</h3><p>1919 — 1998</p></div>
-                </article>
-                <article class="person-card" style="--x: 710px; --y: 130px" data-person="madeleine" tabindex="0">
-                    <div class="portrait portrait-rose">MD</div>
-                    <div><span class="relationship">Grand-mère</span><h3>Madeleine Dubois</h3><p>1922 — 2007</p></div>
-                </article>
-                <article class="person-card" style="--x: 885px; --y: 335px" data-person="antoine" tabindex="0">
-                    <div class="portrait portrait-green">AB</div>
-                    <div><span class="relationship">Époux</span><h3>Antoine Bernard</h3><p>1946 — 2021</p></div>
-                </article>
-                <article class="person-card" style="--x: 410px; --y: 570px" data-person="claire" tabindex="0">
-                    <div class="portrait portrait-rose">CB</div>
-                    <div><span class="relationship">Fille</span><h3>Claire Bernard</h3><p>née en 1973</p></div>
-                </article>
-                <article class="person-card" style="--x: 760px; --y: 570px" data-person="julien" tabindex="0">
-                    <div class="portrait portrait-blue">JB</div>
-                    <div><span class="relationship">Fils</span><h3>Julien Bernard</h3><p>né en 1977</p></div>
-                </article>
-                <article class="person-card ancestor" style="--x: 65px; --y: 55px" data-person="auguste" tabindex="0">
-                    <div class="portrait portrait-ink">AM</div>
-                    <div><span class="relationship">Arrière-grand-père</span><h3>Auguste Morel</h3><p>1887 — 1958</p></div>
-                </article>
-                <article class="person-card ancestor" style="--x: 1040px; --y: 80px" data-person="celestine" tabindex="0">
-                    <div class="portrait portrait-gold">CP</div>
-                    <div><span class="relationship">Arrière-grand-mère</span><h3>Célestine Petit</h3><p>1892 — 1966</p></div>
-                </article>
             </div>
             <p class="drag-hint" data-drag-hint>Glissez pour explorer</p>
         </div>

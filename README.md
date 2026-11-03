@@ -18,7 +18,7 @@ The first production slice is available. It provides a French interactive tree, 
 ## Technology
 
 - Laravel 13 and PHP 8.4;
-- Blade, modern CSS, and browser JavaScript for the first interactive slice;
+- Blade, modern CSS, browser JavaScript, and ELK layered graph layout for the interactive tree;
 - Vite for front-end assets;
 - a private server-side JSON dataset for the first production release, with MySQL reserved for later editing and richer records;
 - PHPUnit and GitHub Actions for validation;
@@ -32,6 +32,7 @@ The repository includes a Docker-based workflow so PHP and Composer do not need 
 docker run --rm -v "$PWD:/app" -w /app composer:2 composer install
 npm install
 npm run build
+npm run test:js
 docker run --rm -p 8000:8000 -v "$PWD:/app" -w /app php:8.4-cli php artisan serve --host=0.0.0.0
 ```
 

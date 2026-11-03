@@ -6,6 +6,7 @@
 
 - application available under `/family-tree`;
 - authentication required before any private data is loaded;
+- automatic generation alignment and family-unit routing for incomplete genealogy branches;
 - sessions expire after a configurable duration;
 - explicit sign-out control.
 
