@@ -19,6 +19,16 @@
 - visually distinct links for parentage and partnerships;
 - progressive loading or virtualised rendering for large families.
 
+### Research map
+
+- private page available under `/family-tree/research` using the same family session;
+- every researched person remains visible even when their branch is not connected to the main tree;
+- research zones distinguish the displayed family, newly connected branches, and unconnected historical branches;
+- confidence styling distinguishes established, probable, and uncertain facts;
+- missing-link cards explain the evidence needed to connect or disambiguate a branch;
+- discoveries remain visible so a resolved puzzle can be traced back to its source pages;
+- source page references are exposed without publishing scanned documents or private working notes.
+
 ### People and relationships
 
 - one or more given names;

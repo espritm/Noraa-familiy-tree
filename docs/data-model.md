@@ -51,11 +51,30 @@ The model must preserve uncertainty and provenance instead of forcing every fact
 - associated media;
 - confidence level.
 
+### Research zone
+
+- stable identifier and human-readable title;
+- list of people grouped for visual investigation rather than asserted kinship;
+- connection status: confirmed, newly connected, or unconnected;
+- count of included people.
+
+### Missing link
+
+- concise research question;
+- affected people or zones;
+- priority and number of people potentially connected by a resolution;
+- evidence already available;
+- evidence still required;
+- source page references;
+- open or resolved status.
+
 ## Rules
 
 - no parentage link may make a person their own ancestor;
 - incompatible dates produce a warning rather than a silent correction;
 - disputed information may retain several sourced hypotheses;
+- research-zone proximity never creates a genealogical relationship;
+- a hypothetical connection must never be rendered with the same style as confirmed parentage;
 - significant administrative deletions must be recoverable;
 - data about living people is minimised and hidden according to the agreed policy.
 
