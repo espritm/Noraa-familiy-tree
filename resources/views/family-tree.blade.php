@@ -51,6 +51,11 @@
         <div class="legend" aria-label="Légende">
             <span><i class="legend-line parent"></i>Filiation</span>
             <span><i class="legend-line union"></i>Union</span>
+            @if ($treeStats !== null)
+                <span class="tree-count" title="Les autres personnes sont conservées dans les données de recherche tant que leur raccordement reste incertain.">
+                    <strong>{{ $treeStats['visible'] }}</strong> personnes affichées sur <strong>{{ $treeStats['total'] }}</strong> recensées
+                </span>
+            @endif
             <span class="fiction-badge">{{ $isPrivateData ? 'Données familiales' : 'Données fictives' }}</span>
         </div>
     </section>
