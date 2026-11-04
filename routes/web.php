@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FamilyAccessController;
 use App\Http\Controllers\FamilyTreeController;
+use App\Http\Controllers\ResearchMapController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -13,3 +14,7 @@ Route::post('/family-tree/logout', [FamilyAccessController::class, 'logout'])->n
 Route::get('/family-tree', [FamilyTreeController::class, 'show'])
     ->middleware('family.access')
     ->name('family-tree');
+
+Route::get('/family-tree/research', [ResearchMapController::class, 'show'])
+    ->middleware('family.access')
+    ->name('research-map');

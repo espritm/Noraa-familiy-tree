@@ -3,7 +3,7 @@ export const PERSON_HEIGHT = 104;
 
 const FAMILY_NODE_SIZE = 2;
 
-export function buildFamilyUnits(personIds, parentage) {
+export function buildFamilyUnits(personIds, parentage, couples = []) {
     const knownPeople = new Set(personIds);
     const parentsByChild = new Map();
 
@@ -28,11 +28,25 @@ export function buildFamilyUnits(personIds, parentage) {
         unitsByParents.get(key).childIds.push(childId);
     });
 
+    couples.forEach(({ people }) => {
+        if (!Array.isArray(people)) return;
+        const parentIds = people.filter((id) => knownPeople.has(id)).sort();
+        if (parentIds.length !== 2 || parentIds[0] === parentIds[1]) return;
+        const key = JSON.stringify(parentIds);
+        if (!unitsByParents.has(key)) {
+            unitsByParents.set(key, {
+                id: `family-${unitsByParents.size}`,
+                parentIds,
+                childIds: [],
+            });
+        }
+    });
+
     return Array.from(unitsByParents.values());
 }
 
-export function buildLayoutGraph(personIds, parentage) {
-    const familyUnits = buildFamilyUnits(personIds, parentage);
+export function buildLayoutGraph(personIds, parentage, couples = []) {
+    const familyUnits = buildFamilyUnits(personIds, parentage, couples);
     const children = personIds.map((id) => ({
         id: `person:${id}`,
         width: PERSON_WIDTH,
@@ -109,8 +123,8 @@ function sectionPoints(section) {
         .map(({ x, y }) => ({ x, y }));
 }
 
-export async function layoutFamilyTree(personIds, parentage, elkInstance = null) {
-    const { graph, edgeKinds, edgeFamilyIds, edgeEndpoints, familyUnits } = buildLayoutGraph(personIds, parentage);
+export async function layoutFamilyTree(personIds, parentage, elkInstance = null, couples = []) {
+    const { graph, edgeKinds, edgeFamilyIds, edgeEndpoints, familyUnits } = buildLayoutGraph(personIds, parentage, couples);
     let elk = elkInstance;
 
     if (!elk) {

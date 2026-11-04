@@ -34,6 +34,7 @@
         </form>
 
         <div class="topbar-actions">
+            <a class="quiet-button quiet-link" href="{{ route('research-map') }}">Carte de recherche</a>
             <button class="quiet-button" type="button" data-open-about>À propos</button>
             <form method="post" action="{{ route('family-access.logout') }}">
                 @csrf

@@ -13,7 +13,7 @@ Convert more than one hundred pages of handwritten research into structured data
 5. Review the transcription against the original image.
 6. Extract people, relationships, events, places, and archival references.
 7. Explicitly mark uncertain readings and contradictions.
-8. Ask the original researcher to validate reconciliations and corrections.
+8. Ask the original researcher to validate reconciliations and corrections when available; otherwise preserve the unresolved alternatives explicitly.
 9. Import first into a private review dataset.
 10. Create a backup before every bulk import.
 
@@ -26,6 +26,7 @@ Each page receives a stable identifier such as `NOTE-0001`. Every extracted fact
 - double-check names, dates, and parentage links;
 - distinguish observed text, interpretation, and hypothesis;
 - detect potential duplicates but require human confirmation;
+- use a visual research map to keep disconnected branches and missing links visible without inventing parentage;
 - report incompatible events;
 - review a sample after each import batch;
 - never add a real document to the public repository.

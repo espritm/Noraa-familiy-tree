@@ -32,6 +32,13 @@ class FamilyTreePageTest extends TestCase
             ->assertDontSee('Notre arbre familial');
     }
 
+    public function test_research_map_redirects_guests(): void
+    {
+        $this->get('/family-tree/research')
+            ->assertRedirect('/family-tree/login')
+            ->assertDontSee('Carte de recherche');
+    }
+
     public function test_misspelled_legacy_paths_are_not_available(): void
     {
         $this->get('/familiy-tree')->assertNotFound();
@@ -94,6 +101,65 @@ class FamilyTreePageTest extends TestCase
                 ->assertSee('1</strong> personnes affichées sur <strong>3', false)
                 ->assertDontSee('must-never-reach-the-browser')
                 ->assertDontSee('private-review-marker')
+                ->assertHeader('Cache-Control', 'max-age=0, no-store, private')
+                ->assertHeader('Pragma', 'no-cache');
+        } finally {
+            File::deleteDirectory($privateDirectory);
+        }
+    }
+
+    public function test_authenticated_research_map_loads_sanitized_private_research_data(): void
+    {
+        $privateDirectory = storage_path('framework/testing/research-map');
+        $privatePath = $privateDirectory.'/family.json';
+        File::ensureDirectoryExists($privateDirectory);
+        File::put($privatePath, json_encode([
+            'people' => [['id' => 'tree-person']],
+            'parentage' => [],
+            'research' => [
+                'people' => [[
+                    'id' => 'research-person',
+                    'display_name' => 'Émile Exemple',
+                    'confidence' => 'probable',
+                    'zone' => 'open-branch',
+                    'displayed_in_tree' => false,
+                    'source_refs' => ['carnet:22'],
+                    'internal_note' => 'must-never-reach-the-browser',
+                ]],
+                'parentage' => [],
+                'couples' => [],
+                'zones' => [[
+                    'id' => 'open-branch',
+                    'title' => 'Branche ouverte',
+                    'description' => 'À raccorder',
+                    'tone' => 'unconnected',
+                    'people_count' => 1,
+                ]],
+                'discoveries' => [],
+                'missing_links' => [[
+                    'id' => 'missing-parent',
+                    'title' => 'Parent inconnu',
+                    'status' => 'open',
+                    'priority' => 1,
+                    'summary' => 'Une preuve est nécessaire.',
+                    'impact_people_count' => 1,
+                    'focus_person_ids' => ['research-person'],
+                    'private_reasoning' => 'must-also-stay-private',
+                ]],
+            ],
+        ], JSON_THROW_ON_ERROR));
+        config()->set('family-data.path', $privatePath);
+
+        try {
+            $this->withSession(['family_access_authenticated' => true])
+                ->get('/family-tree/research')
+                ->assertOk()
+                ->assertSee('Carte de recherche')
+                ->assertSee('Émile Exemple')
+                ->assertSee('Parent inconnu')
+                ->assertSee('Arbre familial')
+                ->assertDontSee('must-never-reach-the-browser')
+                ->assertDontSee('must-also-stay-private')
                 ->assertHeader('Cache-Control', 'max-age=0, no-store, private')
                 ->assertHeader('Pragma', 'no-cache');
         } finally {

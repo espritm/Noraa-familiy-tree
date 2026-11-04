@@ -37,6 +37,14 @@ describe('family tree layout', () => {
         expect(siblingUnit.childIds).toEqual(['sibling-a', 'sibling-b']);
     });
 
+    it('keeps a documented couple connected even when no child is known', () => {
+        const units = buildFamilyUnits(['person-a', 'person-b'], [], [{ people: ['person-b', 'person-a'] }]);
+
+        expect(units).toHaveLength(1);
+        expect(units[0].parentIds).toEqual(['person-a', 'person-b']);
+        expect(units[0].childIds).toEqual([]);
+    });
+
     it('aligns co-parents and siblings while preserving generation order', async () => {
         const layout = await layoutFamilyTree(people, parentage);
 
