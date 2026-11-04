@@ -94,6 +94,8 @@ a { color: inherit; }
 .legend span { display: inline-flex; align-items: center; gap: .4rem; }
 .legend-line { display: inline-block; width: 24px; height: 2px; background: var(--green); }
 .legend-line.union { background: var(--gold); }
+.legend .tree-count { padding: .35rem .65rem; border: 1px solid rgba(35,49,45,.14); border-radius: 999px; background: rgba(255,253,248,.78); color: var(--ink); }
+.tree-count strong { color: var(--green); font-variant-numeric: tabular-nums; }
 .legend .fiction-badge { padding: .35rem .65rem; border-radius: 999px; background: var(--green-soft); color: var(--green); font-weight: 600; }
 
 .tree-frame { position: relative; flex: 1; min-height: 560px; margin: 0 clamp(.75rem, 2vw, 2rem); border: 1px solid rgba(35,49,45,.13); border-radius: 22px; overflow: hidden; background: rgba(247,244,237,.72); box-shadow: 0 26px 70px rgba(40,49,45,.09); }

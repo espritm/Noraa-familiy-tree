@@ -17,6 +17,7 @@ class FamilyTreeController extends Controller
             return $this->treeResponse([
                 'familyData' => null,
                 'isPrivateData' => false,
+                'treeStats' => null,
             ]);
         }
 
@@ -64,12 +65,22 @@ class FamilyTreeController extends Controller
             ]))
             ->values();
 
+        $visiblePeopleCount = $people->count();
+        $researchPeopleCount = data_get($decoded, 'statistics.research_people_count');
+        if (! is_int($researchPeopleCount) || $researchPeopleCount < $visiblePeopleCount) {
+            $researchPeopleCount = $visiblePeopleCount;
+        }
+
         return $this->treeResponse([
             'familyData' => [
                 'people' => $people,
                 'parentage' => $parentage,
             ],
             'isPrivateData' => true,
+            'treeStats' => [
+                'visible' => $visiblePeopleCount,
+                'total' => $researchPeopleCount,
+            ],
         ]);
     }
 

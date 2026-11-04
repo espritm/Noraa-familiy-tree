@@ -80,6 +80,7 @@ class FamilyTreePageTest extends TestCase
                 'internal_note' => 'must-never-reach-the-browser',
             ]],
             'parentage' => [],
+            'statistics' => ['research_people_count' => 3],
             'review_notes' => ['private-review-marker'],
         ], JSON_THROW_ON_ERROR));
         config()->set('family-data.path', $privatePath);
@@ -90,6 +91,7 @@ class FamilyTreePageTest extends TestCase
                 ->assertOk()
                 ->assertSee('Données familiales')
                 ->assertSee('Éloïse')
+                ->assertSee('1</strong> personnes affichées sur <strong>3', false)
                 ->assertDontSee('must-never-reach-the-browser')
                 ->assertDontSee('private-review-marker')
                 ->assertHeader('Cache-Control', 'max-age=0, no-store, private')
