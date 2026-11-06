@@ -32,11 +32,11 @@ jobs:
     steps:
       - name: Restore and validate the private dataset
         env:
-          FAMILY_DATA_B64: ${{ secrets.OVH_FAMILY_DATA_B64 }}
+          FAMILY_DATA_GZIP_B64: ${{ secrets.OVH_FAMILY_DATA_GZIP_B64 }}
           FAMILY_DATA_FILE: ${{ runner.temp }}/family.json
         run: |
-          test -n "${FAMILY_DATA_B64}"
-          printf '%s' "${FAMILY_DATA_B64}" | base64 --decode > "${FAMILY_DATA_FILE}"
+          test -n "${FAMILY_DATA_GZIP_B64}"
+          printf '%s' "${FAMILY_DATA_GZIP_B64}" | base64 --decode | gzip --decompress > "${FAMILY_DATA_FILE}"
           chmod 600 "${FAMILY_DATA_FILE}"
           python3 - <<'PY'
           import json

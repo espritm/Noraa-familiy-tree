@@ -15,7 +15,7 @@ All hosting connection fields are confidential, including values that are not pa
 
 Application secrets such as the Laravel application key, database credentials, and family access password hash must remain in the production `.env` file managed directly on the server. They must not be uploaded from the public repository.
 
-`OVH_FAMILY_DATA_B64` is a temporary GitHub `production` environment secret used only while running the private-data synchronisation. Create it from the ignored local dataset, run the workflow, verify success, and delete the secret immediately. The workflow validates the JSON structure, uploads it to `storage/app/private/family.json`, downloads a verification copy, and compares the bytes without printing the dataset.
+`OVH_FAMILY_DATA_GZIP_B64` is a temporary GitHub `production` environment secret used only while running the private-data synchronisation. Gzip the ignored local dataset before Base64 encoding it, create the secret, run the workflow, verify success, and delete the secret immediately. Compression keeps the value below GitHub's secret-size limit. The workflow restores and validates the JSON structure, uploads it to `storage/app/private/family.json`, downloads a verification copy, and compares the bytes without printing the dataset.
 
 Because the production database is shared at hosting-account level, the application must use its dedicated `noraa_family_` table prefix. Its session cookie must also use the project-specific name documented in `.env.example`. These boundaries prevent collisions with unrelated sites on the same hosting plan.
 
